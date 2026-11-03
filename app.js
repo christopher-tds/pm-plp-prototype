@@ -183,8 +183,23 @@
         el.classList.remove("rack-wait");
         void el.offsetWidth; // restart the animation
         el.classList.add("rack");
+        settle(el, "rack", "rack");
       });
     });
+  }
+
+  // Drop the animation class once it finishes. WebKit (Safari, and Chrome on iOS) can keep painting
+  // the last blurred frame of a held filter animation, most often when the photo finishes loading
+  // mid-animation, so the tile would stay soft. Removing the class leaves no filter to get stuck.
+  // The timer is a backstop for when animationend never fires.
+  function settle(el, cls, name) {
+    clearTimeout(el._settle);
+    const done = () => { clearTimeout(el._settle); el.removeEventListener("animationend", onEnd); el.classList.remove(cls); };
+    const onEnd = (e) => { if (e.target === el && e.animationName === name) done(); };
+    el.addEventListener("animationend", onEnd);
+    const css = getComputedStyle(el);
+    const ms = (v) => Math.max(...v.split(",").map((t) => parseFloat(t) * (t.trim().endsWith("ms") ? 1 : 1000)));
+    el._settle = setTimeout(done, ms(css.animationDuration) + ms(css.animationDelay) + 200);
   }
 
   function rackImage(img) {
@@ -192,6 +207,7 @@
     img.classList.remove("rack-img");
     void img.offsetWidth;
     img.classList.add("rack-img");
+    settle(img, "rack-img", "rack-img");
   }
 
   // Show a colorway on a card's image and colorway line (used for hover previews).

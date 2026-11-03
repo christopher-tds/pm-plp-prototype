@@ -414,12 +414,16 @@ a { color: inherit; }
 /* ---------- Tablet: 750–989 ---------- */
 
 @media (max-width: 989px) {
-  .nav { padding: 0 16px; }
-  .nav__list, .nav__text { display: none; }
-  .nav__menu { display: inline-grid; margin-right: 12px; }
-  .logo { margin-right: auto; }
-  .icon-btn { width: 48px; height: 48px; margin: -12px; }
-  .nav__secondary { gap: 24px; }
+  /* Matches the live tablet and mobile header: menu left, logo centered, search and cart right. */
+  .nav { position: relative; }
+  .nav__list, .nav__text, .nav__account { display: none; }
+  .nav__menu { display: inline-grid; }
+  .logo { position: absolute; left: 50%; top: 50%; width: 135px; height: 18.5px; transform: translate(-50%, -50%); }
+  .icon-btn { width: 48px; height: 48px; margin: -11px; }
+  .icon-btn img { width: 26px; height: 26px; }
+  .nav__menu.icon-btn { margin: -14px; }
+  .nav__menu img { width: 20px; height: 20px; }
+  .nav__secondary { gap: 10px; }
 
   /* Tablet and mobile toolbar: Filter and Sort only. The grid is 2 columns and View moves into the
      filter panel. */
@@ -447,9 +451,6 @@ a { color: inherit; }
 /* ---------- Mobile: under 750 ---------- */
 
 @media (max-width: 749px) {
-  .nav { height: 56px; }
-  .logo { width: 128px; height: 18px; }
-
   .collection-header { flex-direction: column; gap: 12px; padding: 32px var(--pad) 24px; }
   .collection-header__desc { font-size: 16px; line-height: 24px; }
 
