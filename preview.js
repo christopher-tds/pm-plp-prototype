@@ -2,6 +2,7 @@
    same page in a frame at true device size (never scaled), so the real 750 / 990 breakpoints apply. */
 (() => {
   if (window.self !== window.top) return; // inside the device frame: no panel
+  if (new URLSearchParams(location.search).has("clean")) return; // clean capture (share image)
 
   const DEVICES = {
     desktop: { label: "Desktop" },

@@ -2,6 +2,7 @@
    Values save to localStorage, apply to this page and to the Tablet / Mobile preview frames. */
 (() => {
   if (window.self !== window.top) return; // the frames pick up changes from storage events
+  if (new URLSearchParams(location.search).has("clean")) return; // clean capture (share image)
 
   const KEY = "pm-plp-rack";
   const CONTROLS = [

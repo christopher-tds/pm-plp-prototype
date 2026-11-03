@@ -58,3 +58,5 @@ It needs Pillow (`pip install pillow`) to classify images and sample swatch colo
 - Inter stands in for ABC Whyte, the brand font, which is licensed and not bundled here.
 - Product images load from Shopify's CDN; nothing is copied into the repo except the two editorial
   photos from Figma.
+- The share image (`assets/og-image.jpg`, 1200 × 630) is a capture of the page top. To retake it, load the
+  page with `?clean=1`, which hides the viewport switcher and transitions panel.
