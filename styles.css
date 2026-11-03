@@ -584,14 +584,13 @@ html.rack-off .rack-wait { opacity: 1; }
   padding: 0 16px;
   border: 0;
   border-radius: 999px;
-  background: #dddbd6;
-  color: #6f6b64;
+  background: #ffffff;
+  color: #2c2a26;
   box-shadow: 0 4px 16px rgba(44, 42, 38, 0.16);
   font: inherit;
   font-weight: 500;
   cursor: pointer;
 }
-.tuner__toggle:hover, .tuner__toggle[aria-expanded="true"] { color: #2c2a26; }
 .tuner__body {
   position: absolute;
   top: 48px;
