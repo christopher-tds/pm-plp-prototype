@@ -560,7 +560,7 @@ html.rack-off .rack-wait { opacity: 1; }
 
 /* ---------- TEMPORARY: transition tuner (tuner.js) ---------- */
 
-/* Review bar: the tuner button sits left of the viewport picker, same 40px height, separate pill. */
+/* Review bar: the tuner button sits right of the viewport picker, same 40px height, separate pill. */
 .review-bar {
   position: fixed;
   top: 12px;

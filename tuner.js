@@ -50,12 +50,12 @@
         <button type="button" data-act="copy">Copy CSS</button>
       </div>
     </div>`;
-  // Sits in the top-right review bar, just left of the viewport picker (preview.js runs first).
+  // Sits in the top-right review bar, just right of the viewport picker (preview.js runs first).
   const bar = document.createElement("div");
   bar.className = "review-bar";
   const vp = document.querySelector(".vp-panel");
-  bar.append(el);
   if (vp) bar.append(vp);
+  bar.append(el);
   document.body.appendChild(bar);
 
   const body = el.querySelector(".tuner__body");
