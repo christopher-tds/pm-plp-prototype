@@ -12,11 +12,14 @@
   }
 
   // Inline editorial content from the Figma frame. Each links to its product when it's in the data.
+  // Every tile has the same structure: an eyebrow with the product name, then a text block. No
+  // colorway (designer decision, 2026-11-06). `colorway` only picks the product to link to.
   const EDITORIALS = [
-    { style: "Pro Nomadic Jersey", colorway: "Pale Clay", showColorway: false, position: "right top",
+    { style: "Pro Nomadic Jersey", colorway: "Pale Clay", position: "right top",
       copy: "Seven pockets, abrasion-resistant fabric that dries fast, and reflective details for when the day runs long.",
       src: "assets/img/editorial-pro-nomadic-pale-clay", alt: "Rider in a Pale Clay Pro Nomadic Jersey on a night ride" },
     { style: "Pro Midweight Thermal Jersey", colorway: "Grey", position: "left top",
+      copy: "[One line from brand]",
       src: "assets/img/editorial-pro-midweight-thermal-grey", alt: "Close-up of a rider layered in a Grey Pro Midweight Thermal Jersey" },
   ];
 
@@ -140,17 +143,17 @@
     const ownRow = slot === "row";
     const span = ownRow ? cols : slot[2] || 2; // tiles span 2 × 2 unless the cell says otherwise
     const style = ownRow
-      ? "grid-column:1 / -1;aspect-ratio:345/410;"
+      ? "grid-column:1 / -1;aspect-ratio:4/5;"
       : `grid-row:${slot[0]} / span ${span};grid-column:${slot[1]} / span ${span};`;
     const single = !ownRow && span === 1;
     return `
-      <a class="editorial${ownRow || single ? " editorial--row" : ""}${e.copy ? " editorial--copy" : ""}" style="${style}" href="${p ? p.url : "#"}" target="_blank" rel="noopener">
+      <a class="editorial${ownRow || single ? " editorial--row" : ""} editorial--copy" style="${style}" href="${p ? p.url : "#"}" target="_blank" rel="noopener">
         <img src="${e.src}-1000.jpg" srcset="${e.src}-1000.jpg 1000w, ${e.src}-1800.jpg 1800w"
           sizes="${ownRow ? "100vw" : `calc(${(span / cols) * 100}vw)`}" alt="${e.alt}" loading="${i === 0 ? "eager" : "lazy"}"
           style="object-position:${e.position}">
         <span class="editorial__rail"><span class="editorial__label">
-          <span class="editorial__meta"><span>${e.style}</span>${e.showColorway === false ? "" : `<span>${e.colorway}</span>`}</span>
-          ${e.copy ? `<span class="editorial__copy">${e.copy}</span>` : ""}
+          <span class="editorial__meta"><span>${e.style}</span></span>
+          <span class="editorial__copy">${e.copy}</span>
         </span></span>
       </a>`;
   }

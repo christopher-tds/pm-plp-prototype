@@ -18,7 +18,7 @@ colorway, swatches). The 3 and 6 column frames set the grid behavior (2 × 2 edi
 - **Second shot:** on desktop, hovering a card photo brings in the other shot with the rack focus
   (on figure in the Product view, flat lay in On figure). On tablet and mobile, the photo swipes
   between the two, with a 1px bar right under it (Taylor Stitch pattern).
-- **Editorial tiles:** the two inline editorial images from the Figma, linking to their products. Pro Nomadic carries a line of copy under its label, top left (Figma `228:119`); both use a 48% black scrim over the top quarter (top half on mobile). On
+- **Editorial tiles:** the two inline editorial images from the Figma, linking to their products. Every tile has the same label, top left (Figma `228:119`): an eyebrow with the product name, then a line of copy, and no colorway. Pro Midweight Thermal's copy is a placeholder for now. Both use a 48% black scrim over the top quarter (top half on mobile). On
   desktop they span 2 columns × 2 rows at 4 and 6 columns, and one slot at 3 columns; on tablet and mobile each takes its own full-width row, after 4 products and then 8 more. Labels
   pin below the toolbar while scrolling. Hidden in Index view and while filtering or sorting.
 - **Filter panel:** View (Product / On figure, mirrored from the toolbar and applied straight away),
