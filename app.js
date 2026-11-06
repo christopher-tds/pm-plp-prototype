@@ -13,7 +13,7 @@
 
   // Inline editorial content from the Figma frame. Each links to its product when it's in the data.
   const EDITORIALS = [
-    { style: "Pro Nomadic Jersey", colorway: "Pale Clay", position: "right top",
+    { style: "Pro Nomadic Jersey", colorway: "Pale Clay", showColorway: false, position: "right top",
       copy: "Seven pockets, abrasion-resistant fabric that dries fast, and reflective details for when the day runs long.",
       src: "assets/img/editorial-pro-nomadic-pale-clay", alt: "Rider in a Pale Clay Pro Nomadic Jersey on a night ride" },
     { style: "Pro Midweight Thermal Jersey", colorway: "Grey", position: "left top",
@@ -149,7 +149,7 @@
           sizes="${ownRow ? "100vw" : `calc(${(span / cols) * 100}vw)`}" alt="${e.alt}" loading="${i === 0 ? "eager" : "lazy"}"
           style="object-position:${e.position}">
         <span class="editorial__rail"><span class="editorial__label">
-          <span class="editorial__meta"><span>${e.style}</span><span>${e.colorway}</span></span>
+          <span class="editorial__meta"><span>${e.style}</span>${e.showColorway === false ? "" : `<span>${e.colorway}</span>`}</span>
           ${e.copy ? `<span class="editorial__copy">${e.copy}</span>` : ""}
         </span></span>
       </a>`;
