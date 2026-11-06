@@ -55,12 +55,6 @@
     return mqDesktop.matches ? "desktop" : mqTablet.matches ? "tablet" : "mobile";
   }
 
-  function imgFor(p) {
-    const useFigure = state.view === "figure" && p.figure;
-    const img = useFigure ? p.figure : p.flat;
-    return { ...img, flat: !useFigure };
-  }
-
   function srcset(src) {
     return [360, 540, 720, 900, 1200, 1600].map((w) => `${src}?width=${w} ${w}w`).join(", ");
   }
@@ -68,6 +62,32 @@
   function sizesAttr() {
     const cols = state.cols === "index" ? LAYOUTS[state.device].index : state.cols;
     return `calc((100vw - ${24 + (cols - 1) * 12}px) / ${cols})`;
+  }
+
+  // ---------- Card images ----------
+
+  // Each card carries two shots: the one for the current view first (flat lay in Product, on figure
+  // in On figure), then the other. Desktop hover brings the second shot in with the rack focus;
+  // tablet and mobile swipe between them, with a thin bar under the photo showing there's more than
+  // one. Products missing one of the shots keep a single image.
+  function shotsFor(p) {
+    const flat = { ...p.flat, flat: true };
+    if (!p.figure) return [flat];
+    const fig = { ...p.figure, flat: false };
+    return state.view === "figure" ? [fig, flat] : [flat, fig];
+  }
+
+  function slidesHTML(p, load) {
+    const shots = shotsFor(p);
+    const name = `${p.style}, ${p.colorway}`;
+    return `
+            <div class="card__slides">
+              ${shots.map((im, i) => `<div class="card__slide${i ? " card__slide--alt" : ""}">
+                <img class="${im.flat ? "is-flat" : ""}"${i ? "" : ` data-pid="${p.id}"`} src="${im.src}?width=720" srcset="${srcset(im.src)}"
+                  sizes="${sizesAttr()}" width="${im.w}" height="${im.h}" alt="${i ? "" : name}" draggable="false"
+                  ${i ? 'loading="lazy"' : load} decoding="async"></div>`).join("")}
+            </div>
+            ${shots.length > 1 ? `<span class="card__bar" aria-hidden="true" style="--n:${shots.length}"><span class="card__bar-thumb"></span></span>` : ""}`;
   }
 
   // ---------- Cards ----------
@@ -81,7 +101,6 @@
 
   function cardHTML(card, eager) {
     const p = byId.get(state.selected.get(card.id) || card.id);
-    const img = imgFor(p);
     const swatches = swatchList(card);
     const shown = swatches.slice(0, 4);
     const more = swatches.length - shown.length;
@@ -94,9 +113,7 @@
         <a class="card__link" href="${p.url}" target="_blank" rel="noopener">
           <div class="card__media">
             ${badge}
-            <img class="${img.flat ? "is-flat" : ""}" data-pid="${p.id}" src="${img.src}?width=720" srcset="${srcset(img.src)}"
-              sizes="${sizesAttr()}" width="${img.w}" height="${img.h}" alt="${p.style}, ${p.colorway}"
-              ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
+            ${slidesHTML(p, eager ? 'fetchpriority="high"' : 'loading="lazy"')}
           </div>
           <div class="card__info">
             <div class="card__row">
@@ -226,17 +243,69 @@
     next.removeAttribute("aria-hidden");
   }
 
+  const motionOff = () => reduceMotion.matches || document.documentElement.classList.contains("rack-off");
+
+  // Replace a card's shots with another colorway's (hover previews), back on the first shot.
+  function swapSlides(article, p) {
+    const media = article.querySelector(".card__media");
+    media.querySelectorAll(".card__slides, .card__bar").forEach((el) => el.remove());
+    media.insertAdjacentHTML("beforeend", slidesHTML(p, 'loading="eager"'));
+  }
+
+  // Tablet and mobile: the bar's thumb follows the swipe. Scroll events don't bubble, so listen in
+  // the capture phase for any card's strip.
+  document.addEventListener("scroll", (e) => {
+    const strip = e.target;
+    if (!strip.classList || !strip.classList.contains("card__slides")) return;
+    const max = strip.scrollWidth - strip.clientWidth;
+    strip.parentElement.style.setProperty("--p", max > 0 ? Math.min(1, strip.scrollLeft / max) : 0);
+  }, true);
+
+  // Mouse drag for the strips, so the Tablet and Mobile frames can be swiped on a desktop. Touch
+  // and trackpads scroll natively. A drag that moves doesn't open the product.
+  let drag = null;
+  let dragged = false;
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    const strip = e.target.closest(".card__slides");
+    if (!strip || strip.scrollWidth <= strip.clientWidth + 1) return;
+    e.preventDefault(); // no native image or link drag
+    drag = { strip, x: e.clientX, left: strip.scrollLeft, moved: false };
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) < 6) return;
+    if (!drag.moved) { drag.moved = true; drag.strip.classList.add("is-dragging"); }
+    drag.strip.scrollLeft = drag.left - dx;
+  });
+  window.addEventListener("pointerup", () => {
+    if (!drag) return;
+    const { strip, left, moved } = drag;
+    drag = null;
+    if (!moved) return;
+    dragged = true;
+    setTimeout(() => { dragged = false; });
+    const w = strip.clientWidth;
+    const from = Math.round(left / w);
+    const delta = strip.scrollLeft - left;
+    const last = strip.children.length - 1;
+    const to = Math.abs(delta) > w * 0.15 ? Math.max(0, Math.min(last, from + Math.sign(delta))) : from;
+    strip.scrollTo({ left: to * w, behavior: motionOff() ? "auto" : "smooth" });
+    const end = () => { clearTimeout(t); strip.classList.remove("is-dragging"); };
+    const t = setTimeout(end, 700);
+    strip.addEventListener("scrollend", end, { once: true });
+  });
+  document.addEventListener("click", (e) => {
+    if (dragged && e.target.closest(".card__slides")) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
   function showColorway(article, p) {
     const img = article.querySelector(".card__media img");
     if (!img || Number(img.dataset.pid) === p.id) return;
-    const im = imgFor(p);
-    img.dataset.pid = p.id;
-    img.srcset = srcset(im.src);
-    img.src = im.src + "?width=720";
-    img.alt = `${p.style}, ${p.colorway}`;
-    img.classList.toggle("is-flat", im.flat);
+    swapSlides(article, p);
     fadeColorway(article.querySelector(".card__color"), p.colorway);
-    rackImage(img);
+    rackImage(article.querySelector(".card__media img"));
   }
 
   function render() {
@@ -342,7 +411,7 @@
     const temp = document.createElement("div");
     temp.innerHTML = cardHTML(byId.get(cardId), false);
     const next = temp.firstElementChild;
-    next.querySelector("img").loading = "eager";
+    next.querySelectorAll("img").forEach((im) => { im.loading = "eager"; });
     article.replaceWith(next);
     if (!previewed) rackImage(next.querySelector(".card__media img"));
     next.querySelector(`[data-swatch="${pid}"]`).focus();
